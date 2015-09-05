@@ -76,12 +76,11 @@ class ParametricKeyboard
     def to_scad
       difference do
         bare_plate
-        hole_matrix(@keyboard.keymap, 0, @keyboard.height_in_mm - @keyboard.key_unit_size);
+        hole_matrix(@keyboard.keymap, 0, height_in_mm - key_unit_size);
         if truncations = @keyboard.truncations
-          lkey = @keyboard.key_unit_size
+          lkey = key_unit_size
           startx = 0
-          starty = @keyboard.height_in_mm - lkey
-          plate_thickness = @keyboard.plate_thickness
+          starty = height_in_mm - lkey
           truncations.each do |truncation|
             toffset = truncation[0][0]
             trow = truncation[0][1]
@@ -91,11 +90,11 @@ class ParametricKeyboard
             case tdirection
             when :right
               translate(v: [startx+lkey*toffset, starty-lkey*trow, 0]) do
-                cube(size: [@keyboard.width_in_mm,lkey,plate_thickness]);
+                cube(size: [width_in_mm,lkey,thickness]);
               end
             when :left
               translate(v: [0, starty-lkey*trow, 0]) do
-                cube(size: [(startx+lkey*toffset)+(twidth*lkey),lkey,plate_thickness]);
+                cube(size: [(startx+lkey*toffset)+(twidth*lkey),lkey,thickness]);
               end
             else
               warn "Unknown truncate direction: #{tdirection}"
@@ -106,7 +105,7 @@ class ParametricKeyboard
     end
 
     def bare_plate
-      cube(size: [@keyboard.width_in_mm, @keyboard.height_in_mm, @keyboard.plate_thickness])
+      cube(size: [width_in_mm, height_in_mm, thickness])
     end
 
     def save_scad(file_path)
@@ -117,11 +116,10 @@ class ParametricKeyboard
     end
 
     def hole_matrix(holes, startx, starty)
-      lkey = @keyboard.key_unit_size
-      holesize = @keyboard.key_hole_size
+      lkey = key_unit_size
       holes.each do |key|
         translate(v: [startx+lkey*key[0][0], starty-lkey*key[0][1], 0]) do
-          translate(v: [(lkey*key[1]-holesize)/2,(lkey - holesize)/2, 0]) do
+          translate(v: [(lkey*key[1]-key_hole_size)/2,(lkey - key_hole_size)/2, 0]) do
             switchhole
           end
         end
@@ -129,25 +127,43 @@ class ParametricKeyboard
     end
 
     def switchhole
-      holesize = @keyboard.key_hole_size
       cutoutwidth = @keyboard.cutout_width
       cutoutheight = @keyboard.cutout_height
-      plateThickness = @keyboard.plate_thickness
       union do
-        cube(size: [holesize,holesize,plateThickness])
+        cube(size: [key_hole_size,key_hole_size,thickness])
 
         if @keyboard.include_cutouts
           # Top clip cutout
           translate(v: [-cutoutwidth,1,0]) do
-            cube(size: [holesize+2*cutoutwidth,cutoutheight,plateThickness])
+            cube(size: [key_hole_size+2*cutoutwidth,cutoutheight,thickness])
           end
 
           # Bottom clip cutout
-          translate(v: [-cutoutwidth,holesize-cutoutwidth-cutoutheight,0]) do
-            cube(size: [holesize+2*cutoutwidth,cutoutheight,plateThickness])
+          translate(v: [-cutoutwidth,key_hole_size-cutoutwidth-cutoutheight,0]) do
+            cube(size: [key_hole_size+2*cutoutwidth,cutoutheight,thickness])
           end
         end
       end
+    end
+
+    def height_in_mm
+      @keyboard.height_in_mm
+    end
+
+    def width_in_mm
+      @keyboard.width_in_mm
+    end
+
+    def thickness
+      @keyboard.plate_thickness
+    end
+
+    def key_unit_size
+      @keyboard.key_unit_size
+    end
+
+    def key_hole_size
+      @keyboard.key_hole_size
     end
   end
 end

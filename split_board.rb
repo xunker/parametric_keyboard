@@ -73,21 +73,21 @@ keymap = [
   [[13.5,4],1], # right arrow
 ];
 
-# truncations = [
-#   [[7,0],1,:right],
-#   [[6.5,1],1,:right],
-#   [[6.75,2],1,:right],
-#   [[7.25,3],1,:right],
-#   [[7.25,4],3,:right]
-# ]
-
 truncations = [
-  [[6,0],1,:left], # 6
-  [[5.5,1],1,:left], # t
-  [[5.75,2],1,:left], # g
-  [[6.25,3],1,:left], # b
-  [[4.25,4],3,:left], # space 1
+  [[7,0],1,:right],
+  [[6.5,1],1,:right],
+  [[6.75,2],1,:right],
+  [[7.25,3],1,:right],
+  [[7.25,4],3,:right]
 ]
+
+# truncations = [
+#   [[6,0],1,:left], # 6
+#   [[5.5,1],1,:left], # t
+#   [[5.75,2],1,:left], # g
+#   [[6.25,3],1,:left], # b
+#   [[4.25,4],3,:left], # space 1
+# ]
 
 
 kb = ParametricKeyboard.new(
