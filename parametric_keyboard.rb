@@ -6,12 +6,13 @@ class ParametricKeyboard
     :cutout_width, :cutout_height, :include_cutouts
 
   # `options` hash keys.
+  #
   # Required:
-  # width   width of board in units of `key_unit_size`. Can be float.
-  # height  height of the board in units of `key_unit_size`. Can be float.
+  # width   Width of board in units of `key_unit_size`. Can be float.
+  # height  Height of the board in units of `key_unit_size`. Can be float.
+  # keymap  Map of the keys. Can be added later with `#keymap=`
   #
   # Optional:
-  # keymap            Map of the keys. Can be added later with `#keymap=`
   # plate_thickness   Thickness of plate in mm. Default: 1.4
   # key_unit_length   Square length of space for a single key unit in mm. Default: 19.05
   # key_hole_size     Square length of cutout for switch in mm. Default: 14
