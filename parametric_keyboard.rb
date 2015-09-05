@@ -3,7 +3,8 @@ require 'rubyscad'
 class ParametricKeyboard
   attr_reader :keymap, :width, :height, :plate_thickness,
     :key_unit_size, :key_hole_size,
-    :cutout_width, :cutout_height, :include_cutouts
+    :cutout_width, :cutout_height, :include_cutouts,
+    :truncations
 
   # `options` hash keys.
   #
@@ -13,13 +14,14 @@ class ParametricKeyboard
   # keymap  Map of the keys. Can be added later with `#keymap=`
   #
   # Optional:
-  # plate_thickness   Thickness of plate in mm. Default: 1.4
-  # key_unit_length   Square length of space for a single key unit in mm. Default: 19.05
-  # key_hole_size     Square length of cutout for switch in mm. Default: 14
-  # cutout_height     Height of switch clasp cutouts in mm. Default: 3
-  # cutout_width      Width of switch clasp cutouts in mm. Default 1
-  # include_cutouts   Include the clasp cutouts? Default: true
+  # plate_thickness Thickness of plate in mm. Default: 1.4
+  # key_unit_length Square length of space for a single key unit in mm. Default: 19.05
+  # key_hole_size   Square length of cutout for switch in mm. Default: 14
+  # cutout_height   Height of switch clasp cutouts in mm. Default: 3
+  # cutout_width    Width of switch clasp cutouts in mm. Default 1
+  # include_cutouts Include the clasp cutouts? Default: true
   # mounting_hole_radius  Radius in mm of mounting holes.  Default: 1.5
+  # truncations     Truncate rows to create partial, non-square plates.
   def initialize(options={})
     @width = options.delete(:width) or raise ArgumentError, 'must provide :width'
     @height = options.delete(:height) or raise ArgumentError, 'must provide :height'
@@ -31,6 +33,7 @@ class ParametricKeyboard
     @cutout_width = (options.delete(:cutout_width) || 1).to_f
     @include_cutouts = !!options.delete(:include_cutouts)
     @mounting_hole_radius = (options.delete(:mounting_hole_radius) || 1.5).to_f
+    @truncations = options.delete(:truncations)
     self.keymap = options.delete(:keymap)
   end
 
@@ -74,6 +77,31 @@ class ParametricKeyboard
       difference do
         bare_plate
         hole_matrix(@keyboard.keymap, 0, @keyboard.height_in_mm - @keyboard.key_unit_size);
+        if truncations = @keyboard.truncations
+          lkey = @keyboard.key_unit_size
+          startx = 0
+          starty = @keyboard.height_in_mm - lkey
+          plate_thickness = @keyboard.plate_thickness
+          truncations.each do |truncation|
+            toffset = truncation[0][0]
+            trow = truncation[0][1]
+            twidth = truncation[1]
+            tdirection = truncation[2]
+
+            case tdirection
+            when :right
+              translate(v: [startx+lkey*toffset, starty-lkey*trow, 0]) do
+                cube(size: [@keyboard.width_in_mm,lkey,plate_thickness]);
+              end
+            when :left
+              translate(v: [0, starty-lkey*trow, 0]) do
+                cube(size: [(startx+lkey*toffset)+(twidth*lkey),lkey,plate_thickness]);
+              end
+            else
+              warn "Unknown truncate direction: #{tdirection}"
+            end
+          end
+        end
       end
     end
 

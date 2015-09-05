@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 require './parametric_keyboard'
 
-
 keymap = [
   # Row 0
   [ [ 0, 0 ], 1 ], # esc
