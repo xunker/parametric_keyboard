@@ -11,7 +11,7 @@ class ParametricKeyboard
   # Required:
   # width   Width of board in units of `key_unit_size`. Can be float.
   # height  Height of the board in units of `key_unit_size`. Can be float.
-  # keymap  Map of the keys. Can be added later with `#keymap=`
+  # keymap  Map of the keys. Can be set later with `#keymap=`
   #
   # Optional:
   # plate_thickness Thickness of plate in mm. Default: 1.4
@@ -21,7 +21,7 @@ class ParametricKeyboard
   # cutout_width    Width of switch clasp cutouts in mm. Default 1
   # include_cutouts Include the clasp cutouts? Default: true
   # mounting_hole_radius  Radius in mm of mounting holes.  Default: 1.5
-  # truncations     Truncate rows to create partial, non-square plates.
+  # truncations     Truncate rows to create partial, non-square plates. Can be set later.
   def initialize(options={})
     @width = options.delete(:width) or raise ArgumentError, 'must provide :width'
     @height = options.delete(:height) or raise ArgumentError, 'must provide :height'
@@ -33,7 +33,7 @@ class ParametricKeyboard
     @cutout_width = (options.delete(:cutout_width) || 1).to_f
     @include_cutouts = !!options.delete(:include_cutouts)
     @mounting_hole_radius = (options.delete(:mounting_hole_radius) || 1.5).to_f
-    @truncations = options.delete(:truncations)
+    self.truncations = options.delete(:truncations)
     self.keymap = options.delete(:keymap)
   end
 
@@ -63,6 +63,20 @@ class ParametricKeyboard
   # [ [ <offset in key_units>, <row in key_units> ], <size in key_units> ]
   def keymap=(keyboard_map)
     @keymap = keyboard_map
+  end
+
+  # `truncations=` argument expected to array like:
+  #
+  # [
+  #   # Row 0
+  #   [ [ 1, 0 ], 1, :right ], # 1
+  #   # Row 1
+  #   [ [ 1.5, 1 ], 1, :left ], # q
+  # ]
+  #
+  # [ [ <offset in key_units>, <row in key_units> ], <size in key_units>, <direction> ]
+  def truncations=(truncations_map)
+    @truncations = truncations_map
   end
 
   class Plate
