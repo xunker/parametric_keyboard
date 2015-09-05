@@ -106,17 +106,17 @@ class ParametricKeyboard
       cutoutheight = @keyboard.cutout_height
       plateThickness = @keyboard.plate_thickness
       union do
-        cube(size: [holesize,holesize,plateThickness]);
+        cube(size: [holesize,holesize,plateThickness])
 
         if @keyboard.include_cutouts
           # Top clip cutout
           translate(v: [-cutoutwidth,1,0]) do
-            cube(size: [holesize+2*cutoutwidth,cutoutheight,plateThickness]);
+            cube(size: [holesize+2*cutoutwidth,cutoutheight,plateThickness])
           end
 
           # Bottom clip cutout
           translate(v: [-cutoutwidth,holesize-cutoutwidth-cutoutheight,0]) do
-            cube(size: [holesize+2*cutoutwidth,cutoutheight,plateThickness]);
+            cube(size: [holesize+2*cutoutwidth,cutoutheight,plateThickness])
           end
         end
       end
