@@ -219,8 +219,8 @@ class ParametricKeyboard
       cube(size: [options[:width], options[:height], options[:thickness]])
     end
 
-    def save_scad(file_path, options={})
-      File.new(file_path, options.delete(:file_mode) || 'w').close
+    def save_scad(file_path)
+      File.new(file_path,'w').close
       @@output_file = file_path
       to_scad
       @@output_file = nil
@@ -328,21 +328,21 @@ class ParametricKeyboard
 
             if !first && previous_end_offset > current_end_offset
               wall_length = previous_end_offset - current_end_offset
-              puts "previous_truncation: #{previous_truncation.inspect}"
-              puts "next_truncation: #{next_truncation.inspect}"
-              puts "trow: #{trow}, current_end_offset: #{current_end_offset}, previous_end_offset: #{previous_end_offset}, wall_length: #{wall_length}"
-              puts({ v: [current_end_offset*lkey,starty-lkey*trow, 0] }).inspect
+              # puts "previous_truncation: #{previous_truncation.inspect}"
+              # puts "next_truncation: #{next_truncation.inspect}"
+              # puts "trow: #{trow}, current_end_offset: #{current_end_offset}, previous_end_offset: #{previous_end_offset}, wall_length: #{wall_length}"
+              # puts({ v: [current_end_offset*lkey,starty-lkey*trow, 0] }).inspect
               translate(v: [current_end_offset*lkey,starty-(lkey*(trow-1)), 0]) do
                 cube(size: [(wall_length*lkey)+case_wall_thickness, case_wall_thickness, case_height])
               end
             end
 
             if !last && next_end_offset > current_end_offset
-              puts "previous_truncation: #{previous_truncation.inspect}"
-              puts "next_truncation: #{next_truncation.inspect}"
               wall_length = next_end_offset - current_end_offset
-              puts "trow: #{trow}, current_end_offset: #{current_end_offset}, next_end_offset: #{next_end_offset}, wall_length: #{wall_length}"
-              puts({ v: [current_end_offset*lkey,starty-lkey*trow, 0] }).inspect
+              # puts "previous_truncation: #{previous_truncation.inspect}"
+              # puts "next_truncation: #{next_truncation.inspect}"
+              # puts "trow: #{trow}, current_end_offset: #{current_end_offset}, next_end_offset: #{next_end_offset}, wall_length: #{wall_length}"
+              # puts({ v: [current_end_offset*lkey,starty-lkey*trow, 0] }).inspect
               translate(v: [current_end_offset*lkey,starty-(lkey*(trow)), 0]) do
                 cube(size: [(wall_length*lkey)+case_wall_thickness, case_wall_thickness, case_height])
               end
@@ -371,8 +371,8 @@ class ParametricKeyboard
       end
     end
 
-    def save_scad(file_path, options={})
-      File.new(file_path, options.delete(:file_mode) || 'w').close
+    def save_scad(file_path)
+      File.new(file_path, 'w').close
       @@output_file = file_path
       to_scad
       @@output_file = nil

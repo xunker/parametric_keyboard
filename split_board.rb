@@ -89,13 +89,54 @@ left_truncations = [
   [[6.75,4],:left], # space 1
 ]
 
-kb = ParametricKeyboard.new(
-  width: 14.5,
-  height: 5,
-  keymap: keymap,
-  truncations: left_truncations,
-  include_cutouts: false
-)
+# kb = ParametricKeyboard.new(
+#   width: 14.5,
+#   height: 5,
+#   keymap: keymap,
+#   truncations: left_truncations,
+#   include_cutouts: false
+# )
 # puts kb.plate.to_scad
 # kb.plate.save_scad('split_board.scad')
-kb.case.save_scad('split_board.scad')
+# kb.case.save_scad('split_board.scad')
+# kb.case.to_scad do |the_case|
+#    echo("before")
+#    the_case
+#    echo("after")
+# end
+
+# To generate two pieces on the same scad, translated
+require 'stringio'
+
+original_stdout = $stdout
+
+new_stdout = StringIO.new
+$stdout = new_stdout
+
+union do
+   kb = ParametricKeyboard.new(
+     width: 14.5,
+     height: 5,
+     keymap: keymap,
+     truncations: right_truncations,
+     include_cutouts: false
+   )
+   kb.case.to_scad
+
+   translate(x:15) do
+      kb = ParametricKeyboard.new(
+        width: 14.5,
+        height: 5,
+        keymap: keymap,
+        truncations: left_truncations,
+        include_cutouts: false
+      )
+      kb.case.to_scad
+   end
+end
+
+File.open('split_board.scad', 'w') do |f|
+   f.puts new_stdout.string
+end
+
+$stdout = original_stdout
