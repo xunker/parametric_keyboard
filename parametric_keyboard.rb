@@ -245,67 +245,77 @@ class ParametricKeyboard
           first = index == 0
           last = right_truncations.length == index+1
 
-          if previous_end_offset > current_end_offset
+          if !first && previous_end_offset > current_end_offset
             wall_length = previous_end_offset - current_end_offset
-            puts "trow: #{trow}, current_end_offset: #{current_end_offset}, previous_end_offset: #{previous_end_offset}, wall_length: {wall_length}"
-            puts({ v: [current_end_offset*lkey,starty-lkey*trow, 0] }).inspect
             translate(v: [current_end_offset*lkey,starty-(lkey*(trow-1)), 0]) do
-              cube(size: [(wall_length*lkey), @keyboard.case_wall_thickness, @keyboard.case_height])
+              cube(size: [(wall_length*lkey)+@keyboard.case_wall_thickness, @keyboard.case_wall_thickness, @keyboard.case_height])
             end
           end
 
           if !last && next_end_offset > current_end_offset
             wall_length = next_end_offset - current_end_offset
-            puts "trow: #{trow}, current_end_offset: #{current_end_offset}, next_end_offset: #{next_end_offset}, wall_length: #{wall_length}"
-            puts({ v: [current_end_offset*lkey,starty-lkey*trow, 0] }).inspect
             translate(v: [current_end_offset*lkey,starty-(lkey*(trow)), 0]) do
-              cube(size: [(wall_length*lkey), @keyboard.case_wall_thickness, @keyboard.case_height])
+              cube(size: [(wall_length*lkey)+@keyboard.case_wall_thickness, @keyboard.case_wall_thickness, @keyboard.case_height])
             end
           end
         end
+
+        left_truncations = truncations.select{|tr| tr[1] == :left}
+        left_truncations.each_with_index do |truncation, index|
+          trow = truncation[0][1]
+          current_end_offset = truncation[0][0]
+
+          previous_truncation = left_truncations.detect{|tr|tr[0][1] == trow - 1}
+          next_truncation = left_truncations.detect{|tr|tr[0][1] == trow + 1}
+
+          previous_end_offset = previous_truncation ? previous_truncation[0][0] : @keyboard.width
+          next_end_offset = next_truncation ? next_truncation[0][0] : @keyboard.width
+
+          first = index == 0
+          last = left_truncations.length == index+1
+
+          if !first && previous_end_offset > current_end_offset
+            wall_length = previous_end_offset - current_end_offset
+            puts "previous_truncation: #{previous_truncation.inspect}"
+            puts "next_truncation: #{next_truncation.inspect}"
+            puts "trow: #{trow}, current_end_offset: #{current_end_offset}, previous_end_offset: #{previous_end_offset}, wall_length: #{wall_length}"
+            puts({ v: [current_end_offset*lkey,starty-lkey*trow, 0] }).inspect
+            translate(v: [current_end_offset*lkey,starty-(lkey*(trow-1)), 0]) do
+              cube(size: [(wall_length*lkey)+@keyboard.case_wall_thickness, @keyboard.case_wall_thickness, @keyboard.case_height])
+            end
+          end
+
+          if !last && next_end_offset > current_end_offset
+            puts "previous_truncation: #{previous_truncation.inspect}"
+            puts "next_truncation: #{next_truncation.inspect}"
+            wall_length = next_end_offset - current_end_offset
+            puts "trow: #{trow}, current_end_offset: #{current_end_offset}, next_end_offset: #{next_end_offset}, wall_length: #{wall_length}"
+            puts({ v: [current_end_offset*lkey,starty-lkey*trow, 0] }).inspect
+            translate(v: [current_end_offset*lkey,starty-(lkey*(trow)), 0]) do
+              cube(size: [(wall_length*lkey)+@keyboard.case_wall_thickness, @keyboard.case_wall_thickness, @keyboard.case_height])
+            end
+          end
+        end
+
+        truncations.each do |truncation|
+          toffset = truncation[0][0]
+          trow = truncation[0][1]
+          tdirection = truncation[1]
+
+          case tdirection
+          when :right
+            translate(v: [startx+lkey*toffset, starty-lkey*trow, 0]) do
+              cube(size: [@keyboard.case_wall_thickness,lkey,@keyboard.case_height])
+            end
+          when :left
+            translate(v: [(startx+lkey*toffset), starty-lkey*trow, 0]) do
+              cube(size: [@keyboard.case_wall_thickness,lkey,@keyboard.case_height])
+            end
+          else
+            warn "Unknown truncate direction: #{tdirection}"
+          end
+        end
       end
-
-      # lkey = @keyboard.key_unit_size
-      # startx = 0
-      # starty = @keyboard.height_in_mm - lkey
-      # if truncations = @keyboard.truncations
-      #   truncations.each do |truncation|
-      #     toffset = truncation[0][0]
-      #     trow = truncation[0][1]
-      #     tdirection = truncation[1]
-
-      #     if trunc_above = truncations.detect{|tr| tr[1] == tdirection && tr[0][1] == trow + 1}
-      #       if trunc_above[0][0] > toffset
-      #         wall_length = (trunc_above[0][0] - toffset) * lkey
-
-      #         translate(v: [startx+lkey*toffset, starty-lkey*trow, 0]) do
-      #           cube(size: [wall_length+@keyboard.case_wall_thickness, @keyboard.case_wall_thickness, @keyboard.case_height])
-      #         end
-      #       end
-
-      #       if trunc_above[0][0] < toffset
-      #         wall_length = (toffset - trunc_above[0][0]) * lkey
-
-      #         translate(v: [(startx+lkey*toffset)-wall_length, starty-lkey*trow, 0]) do
-      #           cube(size: [wall_length+@keyboard.case_wall_thickness, @keyboard.case_wall_thickness, @keyboard.case_height])
-      #         end
-      #       end
-      #     end
-
-      #     case tdirection
-      #     when :right
-      #       translate(v: [startx+lkey*toffset, starty-lkey*trow, 0]) do
-      #         cube(size: [@keyboard.case_wall_thickness,lkey,@keyboard.case_height])
-      #       end
-      #     when :left
-      #       translate(v: [(startx+lkey*toffset), starty-lkey*trow, 0]) do
-      #         cube(size: [@keyboard.case_wall_thickness,lkey,@keyboard.case_height])
-      #       end
-      #     else
-      #       warn "Unknown truncate direction: #{tdirection}"
-      #     end
-      #   end
-      # end
 
       # def bare_plate(options={})
       # options = { width: width_in_mm, height: height_in_mm, thickness: thickness }.merge(options)

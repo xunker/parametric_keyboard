@@ -73,23 +73,15 @@ keymap = [
 
 truncations = []
 
-# truncations = [
-#   [[7,0],1,:right],
-#   [[6.5,1],1,:right],
-#   [[6.75,2],1,:right],
-#   [[7.25,3],1,:right],
-#   [[6.75,4],2.25,:right]
+# truncations += [
+#   [[7,0],:right],
+#   [[6.5,1],:right],
+#   [[6.75,2],:right],
+#   [[7.25,3],:right],
+#   [[6.75,4],:right]
 # ]
 
-# truncations = [
-#   [[6,0],1,:left], # 6
-#   [[5.5,1],1,:left], # t
-#   [[5.75,2],1,:left], # g
-#   [[6.25,3],1,:left], # b
-#   [[4.5,4],2.25,:left], # space 1
-# ]
-
-truncations = [
+truncations += [
   [[7,0],:left], # 6
   [[6.5,1],:left], # t
   [[6.75,2],:left], # g
@@ -98,15 +90,10 @@ truncations = [
 ]
 
 # truncations += [
-#   [[13.50,3],1,:right],
-#   [[12.5,4],1,:right],
+#   # [[13.00,1],:right], # test
+#   [[13.50,3],:right],
+#   [[12.5,4],:right],
 # ]
-
-truncations += [
-  [[13.00,1],:right], # xxx
-  [[13.50,3],:right],
-  [[12.5,4],:right],
-]
 
 kb = ParametricKeyboard.new(
   width: 14.5,
