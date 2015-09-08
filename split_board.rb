@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 require './parametric_keyboard'
+require 'rubyscad'
+extend RubyScad
 
 keymap = [
   # start ROW 0
@@ -71,17 +73,15 @@ keymap = [
   [[11.5,4],1], # rctrl
 ];
 
-truncations = []
+right_truncations = [
+  [[7,0],:right],
+  [[6.5,1],:right],
+  [[6.75,2],:right],
+  [[7.25,3],:right],
+  [[6.75,4],:right]
+]
 
-# truncations += [
-#   [[7,0],:right],
-#   [[6.5,1],:right],
-#   [[6.75,2],:right],
-#   [[7.25,3],:right],
-#   [[6.75,4],:right]
-# ]
-
-truncations += [
+left_truncations = [
   [[7,0],:left], # 6
   [[6.5,1],:left], # t
   [[6.75,2],:left], # g
@@ -89,20 +89,13 @@ truncations += [
   [[6.75,4],:left], # space 1
 ]
 
-# truncations += [
-#   # [[13.00,1],:right], # test
-#   [[13.50,3],:right],
-#   [[12.5,4],:right],
-# ]
-
 kb = ParametricKeyboard.new(
   width: 14.5,
   height: 5,
   keymap: keymap,
-  truncations: truncations,
+  truncations: left_truncations,
   include_cutouts: false
 )
-
 # puts kb.plate.to_scad
 # kb.plate.save_scad('split_board.scad')
 kb.case.save_scad('split_board.scad')
