@@ -103,7 +103,7 @@ truncations = [
 # ]
 
 truncations += [
-  [[13.50,1],:right], # xxx
+  [[13.00,1],:right], # xxx
   [[13.50,3],:right],
   [[12.5,4],:right],
 ]
