@@ -120,17 +120,16 @@ class ParametricKeyboard
         truncations.each do |truncation|
           toffset = truncation[0][0]
           trow = truncation[0][1]
-          twidth = truncation[1]
-          tdirection = truncation[2]
+          tdirection = truncation[1]
 
           case tdirection
           when :right
             translate(v: [startx+lkey*toffset, starty-lkey*trow, 0]) do
-              cube(size: [width_in_mm-(startx+lkey*toffset),lkey,options[:thickness]]);
+              cube(size: [width_in_mm-(startx*toffset),lkey,options[:thickness]]);
             end
           when :left
             translate(v: [0, starty-lkey*trow, 0]) do
-              cube(size: [(startx+lkey*toffset)+(twidth*lkey),lkey,options[:thickness]]);
+              cube(size: [(startx+lkey*toffset),lkey,options[:thickness]]);
             end
           else
             warn "Unknown truncate direction: #{tdirection}"
@@ -210,12 +209,77 @@ class ParametricKeyboard
       @keyboard = keyboard
     end
 
-    # output plate in openscad format
+    # output case in openscad format
     def to_scad
       difference do
         @keyboard.plate.bare_plate(thickness: @keyboard.case_height)
+        translate(
+          x: @keyboard.case_wall_thickness,
+          y: @keyboard.case_wall_thickness,
+          z: @keyboard.case_floor_thickness
+        ) do
+          @keyboard.plate.bare_plate(
+            width: @keyboard.width_in_mm-(@keyboard.case_wall_thickness*2),
+            height: @keyboard.height_in_mm-(@keyboard.case_wall_thickness*2),
+            thickness: @keyboard.case_height-@keyboard.case_floor_thickness
+          )
+        end
         @keyboard.plate.apply_truncations(thickness: @keyboard.case_height)
       end
+
+      lkey = @keyboard.key_unit_size
+      startx = 0
+      starty = @keyboard.height_in_mm - lkey
+      if truncations = @keyboard.truncations
+        truncations.each do |truncation|
+          toffset = truncation[0][0]
+          trow = truncation[0][1]
+          tdirection = truncation[1]
+
+          if trunc_above = truncations.detect{|tr| tr[1] == tdirection && tr[0][1] == trow + 1}
+            if trunc_above[0][0] > toffset
+              wall_length = (trunc_above[0][0] - toffset) * lkey
+
+              translate(v: [startx+lkey*toffset, starty-lkey*trow, 0]) do
+                cube(size: [wall_length+@keyboard.case_wall_thickness, @keyboard.case_wall_thickness, @keyboard.case_height])
+              end
+            end
+
+            if trunc_above[0][0] < toffset
+              wall_length = (toffset - trunc_above[0][0]) * lkey
+
+              translate(v: [(startx+lkey*toffset)-wall_length, starty-lkey*trow, 0]) do
+                cube(size: [wall_length+@keyboard.case_wall_thickness, @keyboard.case_wall_thickness, @keyboard.case_height])
+              end
+            end
+          end
+
+          case tdirection
+          when :right
+            translate(v: [startx+lkey*toffset, starty-lkey*trow, 0]) do
+              cube(size: [@keyboard.case_wall_thickness,lkey,@keyboard.case_height])
+            end
+          when :left
+            translate(v: [(startx+lkey*toffset), starty-lkey*trow, 0]) do
+              cube(size: [@keyboard.case_wall_thickness,lkey,@keyboard.case_height])
+            end
+          else
+            warn "Unknown truncate direction: #{tdirection}"
+          end
+        end
+      end
+
+      # def bare_plate(options={})
+      # options = { width: width_in_mm, height: height_in_mm, thickness: thickness }.merge(options)
+      # cube(size: [options[:width], options[:height], options[:thickness]])
+    # end
+    #   :keymap, :width, :height, :plate_thickness,
+    # :key_unit_size, :key_hole_size,
+    # :cutout_width, :cutout_height, :include_cutouts,
+    # :truncations,
+    # :cavity_height, :case_floor_thickness, :case_wall_thickness, :case_height
+    # difference do
+
     end
 
     def save_scad(file_path)
