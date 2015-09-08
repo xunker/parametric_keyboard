@@ -4,7 +4,8 @@ class ParametricKeyboard
   attr_reader :keymap, :width, :height, :plate_thickness,
     :key_unit_size, :key_hole_size,
     :cutout_width, :cutout_height, :include_cutouts,
-    :truncations
+    :truncations,
+    :cavity_height, :case_floor_thickness, :case_wall_thickness, :case_height
 
   # `options` hash keys.
   #
@@ -22,6 +23,10 @@ class ParametricKeyboard
   # include_cutouts Include the clasp cutouts? Default: true
   # mounting_hole_radius  Radius in mm of mounting holes.  Default: 1.5
   # truncations     Truncate rows to create partial, non-square plates. Can be set later.
+  # cavity_height   Interior height of empty space in lower case. Default 8
+  # case_floor_thickness  Thickness of lower case floor. Default: 1
+  # case_wall_thickness   Thickness of lower case walls. Default 1.2;
+
   def initialize(options={})
     @width = options.delete(:width) or raise ArgumentError, 'must provide :width'
     @height = options.delete(:height) or raise ArgumentError, 'must provide :height'
@@ -33,6 +38,13 @@ class ParametricKeyboard
     @cutout_width = (options.delete(:cutout_width) || 1).to_f
     @include_cutouts = !!options.delete(:include_cutouts)
     @mounting_hole_radius = (options.delete(:mounting_hole_radius) || 1.5).to_f
+    @cavity_height = (options.delete(:cavity_height) || 8).to_f
+    @case_floor_thickness = (options.delete(:case_floor_thickness) || 1).to_f
+    @case_wall_thickness = (options.delete(:case_wall_thickness) || 1.2).to_f
+
+    # total case height: cavity_height + case_floor_thickness
+    @case_height = @cavity_height + @case_floor_thickness
+
     self.truncations = options.delete(:truncations)
     self.keymap = options.delete(:keymap)
   end
@@ -47,6 +59,10 @@ class ParametricKeyboard
 
   def plate
     @plate ||= Plate.new(self)
+  end
+
+  def case
+    @case ||= Case.new(self)
   end
 
   # `keymap=` argument expected to array like:
@@ -91,35 +107,41 @@ class ParametricKeyboard
       difference do
         bare_plate
         hole_matrix(@keyboard.keymap, 0, height_in_mm - key_unit_size);
-        if truncations = @keyboard.truncations
-          lkey = key_unit_size
-          startx = 0
-          starty = height_in_mm - lkey
-          truncations.each do |truncation|
-            toffset = truncation[0][0]
-            trow = truncation[0][1]
-            twidth = truncation[1]
-            tdirection = truncation[2]
+        apply_truncations
+      end
+    end
 
-            case tdirection
-            when :right
-              translate(v: [startx+lkey*toffset, starty-lkey*trow, 0]) do
-                cube(size: [width_in_mm,lkey,thickness]);
-              end
-            when :left
-              translate(v: [0, starty-lkey*trow, 0]) do
-                cube(size: [(startx+lkey*toffset)+(twidth*lkey),lkey,thickness]);
-              end
-            else
-              warn "Unknown truncate direction: #{tdirection}"
+    def apply_truncations(options={})
+      options = { thickness: thickness }.merge(options)
+      if truncations = @keyboard.truncations
+        lkey = key_unit_size
+        startx = 0
+        starty = height_in_mm - lkey
+        truncations.each do |truncation|
+          toffset = truncation[0][0]
+          trow = truncation[0][1]
+          twidth = truncation[1]
+          tdirection = truncation[2]
+
+          case tdirection
+          when :right
+            translate(v: [startx+lkey*toffset, starty-lkey*trow, 0]) do
+              cube(size: [width_in_mm-(startx+lkey*toffset),lkey,options[:thickness]]);
             end
+          when :left
+            translate(v: [0, starty-lkey*trow, 0]) do
+              cube(size: [(startx+lkey*toffset)+(twidth*lkey),lkey,options[:thickness]]);
+            end
+          else
+            warn "Unknown truncate direction: #{tdirection}"
           end
         end
       end
     end
 
-    def bare_plate
-      cube(size: [width_in_mm, height_in_mm, thickness])
+    def bare_plate(options={})
+      options = { width: width_in_mm, height: height_in_mm, thickness: thickness }.merge(options)
+      cube(size: [options[:width], options[:height], options[:thickness]])
     end
 
     def save_scad(file_path)
@@ -158,6 +180,49 @@ class ParametricKeyboard
           end
         end
       end
+    end
+
+    def height_in_mm
+      @keyboard.height_in_mm
+    end
+
+    def width_in_mm
+      @keyboard.width_in_mm
+    end
+
+    def thickness
+      @keyboard.plate_thickness
+    end
+
+    def key_unit_size
+      @keyboard.key_unit_size
+    end
+
+    def key_hole_size
+      @keyboard.key_hole_size
+    end
+  end
+
+  class Case
+    include RubyScad
+    # expect argument to be an instance of ParametricKeyboard
+    def initialize(keyboard)
+      @keyboard = keyboard
+    end
+
+    # output plate in openscad format
+    def to_scad
+      difference do
+        @keyboard.plate.bare_plate(thickness: @keyboard.case_height)
+        @keyboard.plate.apply_truncations(thickness: @keyboard.case_height)
+      end
+    end
+
+    def save_scad(file_path)
+      File.new(file_path, 'w').close
+      @@output_file = file_path
+      to_scad
+      @@output_file = nil
     end
 
     def height_in_mm
