@@ -306,7 +306,7 @@ class ParametricKeyboard
 
             if !last && next_end_offset > current_end_offset
               wall_length = next_end_offset - current_end_offset
-              translate(v: [current_end_offset*lkey,starty-(lkey*(trow)), 0]) do
+              translate(v: [current_end_offset*lkey,(starty-(lkey*(trow)))-case_wall_thickness, 0]) do
                 cube(size: [(wall_length*lkey)+case_wall_thickness, case_wall_thickness, case_height])
               end
             end
@@ -332,7 +332,7 @@ class ParametricKeyboard
               # puts "next_truncation: #{next_truncation.inspect}"
               # puts "trow: #{trow}, current_end_offset: #{current_end_offset}, previous_end_offset: #{previous_end_offset}, wall_length: #{wall_length}"
               # puts({ v: [current_end_offset*lkey,starty-lkey*trow, 0] }).inspect
-              translate(v: [current_end_offset*lkey,starty-(lkey*(trow-1)), 0]) do
+              translate(v: [current_end_offset*lkey,(starty-(lkey*(trow-1)))-case_wall_thickness, 0]) do
                 cube(size: [(wall_length*lkey)+case_wall_thickness, case_wall_thickness, case_height])
               end
             end
@@ -354,9 +354,12 @@ class ParametricKeyboard
             trow = truncation[0][1]
             tdirection = truncation[1]
 
+            # TODO this may be broken
+            # right truncations should put the wall on the left
+            # left truncations should put the wall on the right
             case tdirection
             when :right
-              translate(v: [startx+lkey*toffset, starty-lkey*trow, 0]) do
+              translate(v: [(startx+lkey*toffset), starty-lkey*trow, 0]) do
                 cube(size: [case_wall_thickness,lkey,case_height])
               end
             when :left

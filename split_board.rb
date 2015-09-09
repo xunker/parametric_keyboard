@@ -123,7 +123,7 @@ union do
    )
    kb.case.to_scad
 
-   translate(x:15) do
+   translate(x: kb.case_wall_thickness) do
       kb = ParametricKeyboard.new(
         width: 14.5,
         height: 5,
