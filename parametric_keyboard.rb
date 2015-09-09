@@ -200,7 +200,7 @@ class ParametricKeyboard
 
           case tdirection
           when :right
-            translate(v: [startx+lkey*toffset, starty-lkey*trow, 0]) do
+            translate(v: [(startx+lkey*toffset)+case_wall_thickness, starty-lkey*trow, 0]) do
               cube(size: [width_in_mm-(startx*toffset),lkey,options[:thickness]])
             end
           when :left
