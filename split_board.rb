@@ -59,18 +59,20 @@ keymap = [
   [[8.25,3],1], # m
   [[9.25,3],1], # ,
   [[10.25,3],1], # .
-  [[11.25,3],1], # /
-  [[12.25,3],1.25], # rshift
+  [[11.25,3],1.25], # /
+  [[12.5,3],1], # up
+  [[13.5,3],1], # rshift
   # start ROW 4
   [[0,4],1], # fn
   [[1,4],1], # `
-  [[2,4],1.25], # lalt
-  [[3.25,4],1.25], # lcmd
-  [[4.5,4],2.25], # space 1
-  [[6.75,4],2.25], # space 2
-  [[9,4],1.25], # rcmd
-  [[10.25,4],1.25], # ralt
-  [[11.5,4],1], # rctrl
+  [[2,4],1], # lalt
+  [[3,4],1.25], # lcmd
+  [[4.25,4],3], # space 1
+  [[7.25,4],3], # space 2
+  [[10.25,4],1.25], # rcmd
+  [[11.5,4],1], # left
+  [[12.5,4],1], # down
+  [[13.5,4],1], # right
 ];
 
 right_truncations = [
@@ -78,7 +80,7 @@ right_truncations = [
   [[6.5,1],:right],
   [[6.75,2],:right],
   [[7.25,3],:right],
-  [[6.75,4],:right]
+  [[7.25,4],:right]
 ]
 
 left_truncations = [
@@ -86,7 +88,7 @@ left_truncations = [
   [[6.5,1],:left], # t
   [[6.75,2],:left], # g
   [[7.25,3],:left], # b
-  [[6.75,4],:left], # space 1
+  [[7.25,4],:left], # space 1
 ]
 
 # kb = ParametricKeyboard.new(
@@ -155,7 +157,6 @@ union do
       )
       kb.plate.to_scad
    end
-
 
    kb = ParametricKeyboard.new(
      width: 14.5,

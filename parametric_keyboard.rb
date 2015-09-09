@@ -45,8 +45,8 @@ class ParametricKeyboard
     cavity_height = (options.delete(:cavity_height) || 8).to_f
     @case_height = cavity_height + @case_floor_thickness
 
-    self.truncations = options.delete(:truncations)
-    self.keymap = options.delete(:keymap)
+    self.truncations = options.delete(:truncations) || []
+    self.keymap = options.delete(:keymap) || []
   end
 
   def width_in_mm
@@ -200,7 +200,7 @@ class ParametricKeyboard
 
           case tdirection
           when :right
-            translate(v: [(startx+lkey*toffset)+case_wall_thickness, starty-lkey*trow, 0]) do
+            translate(v: [(startx+lkey*toffset), starty-lkey*trow, 0]) do
               cube(size: [width_in_mm-(startx*toffset),lkey,options[:thickness]])
             end
           when :left
@@ -299,14 +299,14 @@ class ParametricKeyboard
 
             if !first && previous_end_offset > current_end_offset
               wall_length = previous_end_offset - current_end_offset
-              translate(v: [current_end_offset*lkey,starty-(lkey*(trow-1)), 0]) do
+              translate(v: [current_end_offset*lkey-case_wall_thickness,starty-(lkey*(trow-1)), 0]) do
                 cube(size: [(wall_length*lkey)+case_wall_thickness, case_wall_thickness, case_height])
               end
             end
 
             if !last && next_end_offset > current_end_offset
               wall_length = next_end_offset - current_end_offset
-              translate(v: [current_end_offset*lkey,(starty-(lkey*(trow)))-case_wall_thickness, 0]) do
+              translate(v: [current_end_offset*lkey-case_wall_thickness,(starty-(lkey*(trow)))-case_wall_thickness, 0]) do
                 cube(size: [(wall_length*lkey)+case_wall_thickness, case_wall_thickness, case_height])
               end
             end
@@ -359,7 +359,7 @@ class ParametricKeyboard
             # left truncations should put the wall on the right
             case tdirection
             when :right
-              translate(v: [(startx+lkey*toffset), starty-lkey*trow, 0]) do
+              translate(v: [(startx+lkey*toffset)-case_wall_thickness, starty-lkey*trow, 0]) do
                 cube(size: [case_wall_thickness,lkey,case_height])
               end
             when :left
