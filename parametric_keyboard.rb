@@ -25,7 +25,7 @@ class ParametricKeyboard
   # truncations     Truncate rows to create partial, non-square plates. Can be set later.
   # cavity_height   Interior height of empty space in lower case. Default 8
   # case_floor_thickness  Thickness of lower case floor. Default: 1
-  # case_wall_thickness   Thickness of lower case walls. Default 1.2;
+  # case_wall_thickness   Thickness of lower case walls. Default 1.2
 
   def initialize(options={})
     @width = options.delete(:width) or raise ArgumentError, 'must provide :width'
@@ -181,7 +181,7 @@ class ParametricKeyboard
       union do
         difference do
           bare_plate
-          hole_matrix(keymap, 0, height_in_mm - key_unit_size);
+          hole_matrix(keymap, 0, height_in_mm - key_unit_size)
           apply_truncations
         end
       end
@@ -201,11 +201,11 @@ class ParametricKeyboard
           case tdirection
           when :right
             translate(v: [startx+lkey*toffset, starty-lkey*trow, 0]) do
-              cube(size: [width_in_mm-(startx*toffset),lkey,options[:thickness]]);
+              cube(size: [width_in_mm-(startx*toffset),lkey,options[:thickness]])
             end
           when :left
             translate(v: [0, starty-lkey*trow, 0]) do
-              cube(size: [(startx+lkey*toffset),lkey,options[:thickness]]);
+              cube(size: [(startx+lkey*toffset),lkey,options[:thickness]])
             end
           else
             warn "Unknown truncate direction: #{tdirection}"

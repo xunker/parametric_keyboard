@@ -113,6 +113,28 @@ original_stdout = $stdout
 new_stdout = StringIO.new
 $stdout = new_stdout
 
+# union do
+#    kb = ParametricKeyboard.new(
+#      width: 14.5,
+#      height: 5,
+#      keymap: keymap,
+#      truncations: right_truncations,
+#      include_cutouts: false
+#    )
+#    kb.case.to_scad
+
+#    translate(x: kb.case_wall_thickness) do
+#       kb = ParametricKeyboard.new(
+#         width: 14.5,
+#         height: 5,
+#         keymap: keymap,
+#         truncations: left_truncations,
+#         include_cutouts: false
+#       )
+#       kb.case.to_scad
+#    end
+# end
+
 union do
    kb = ParametricKeyboard.new(
      width: 14.5,
@@ -123,16 +145,40 @@ union do
    )
    kb.case.to_scad
 
-   translate(x: kb.case_wall_thickness) do
+   translate(z: kb.case_height) do
       kb = ParametricKeyboard.new(
         width: 14.5,
         height: 5,
         keymap: keymap,
-        truncations: left_truncations,
+        truncations: right_truncations,
         include_cutouts: false
       )
-      kb.case.to_scad
+      kb.plate.to_scad
    end
+
+
+   kb = ParametricKeyboard.new(
+     width: 14.5,
+     height: 5,
+     keymap: keymap,
+     truncations: left_truncations,
+     include_cutouts: false
+   )
+
+   translate(x: 12) do
+      kb.case.to_scad
+      translate(z: kb.case_height) do
+         kb = ParametricKeyboard.new(
+           width: 14.5,
+           height: 5,
+           keymap: keymap,
+           truncations: left_truncations,
+           include_cutouts: false
+         )
+         kb.plate.to_scad
+      end
+   end
+
 end
 
 File.open('split_board.scad', 'w') do |f|
