@@ -5,7 +5,8 @@ class ParametricKeyboard
     :key_unit_size, :key_hole_size,
     :cutout_width, :cutout_height, :include_cutouts,
     :truncations,
-    :cavity_height, :case_floor_thickness, :case_wall_thickness, :case_height
+    :cavity_height, :case_floor_thickness, :case_wall_thickness, :case_height,
+    :mounting_hole_radius, :mounting_holes
 
   # `options` hash keys.
   #
@@ -47,6 +48,7 @@ class ParametricKeyboard
 
     self.truncations = options.delete(:truncations) || []
     self.keymap = options.delete(:keymap) || []
+    self.mounting_holes = options.delete(:mounting_holes) || []
   end
 
   def width_in_mm
@@ -93,6 +95,20 @@ class ParametricKeyboard
   # [ [ <offset in key_units>, <row in key_units> ], <direction> ]
   def truncations=(truncations_map)
     @truncations = truncations_map.sort_by{|tr|tr[0][1]}
+  end
+
+  # `mounting_holes=` argument expected to array like:
+  #
+  # [
+  #   # Row 0
+  #   [ 1, 0 ], # between 1, 2 and q
+  #   # Row 1
+  #   [ 2.5, 1 ], # between q, w and a
+  # ]
+  #
+  # [ <offset in key_units>, <row in key_units> ]
+  def mounting_holes=(mounting_holes_map)
+    @mounting_holes = mounting_holes_map
   end
 
   # common methods for classes descended from ParametricKeyboard
@@ -170,6 +186,14 @@ class ParametricKeyboard
     def truncations?
       !truncations.empty?
     end
+
+    def mounting_holes
+      @keyboard.mounting_holes || []
+    end
+
+    def mounting_hole_radius
+      @keyboard.mounting_hole_radius
+    end
   end
 
   class Plate
@@ -182,6 +206,7 @@ class ParametricKeyboard
         difference do
           bare_plate
           hole_matrix(keymap, 0, height_in_mm - key_unit_size)
+          mounting_hole_matrix(mounting_holes, 0, height_in_mm - key_unit_size)
           apply_truncations
         end
       end
@@ -254,6 +279,21 @@ class ParametricKeyboard
         end
       end
     end
+
+    def mounting_hole_matrix(holes, startx, starty)
+      lkey = key_unit_size
+      holes.each do |key|
+        translate(v: [startx+lkey*key[0], (starty-lkey*key[1])+lkey, 0]) do
+          # translate(v: [(lkey*key[1]-key_hole_size)/2,(lkey - key_hole_size)/2, 0]) do
+            mounting_hole
+          # end
+        end
+      end
+    end
+
+    def mounting_hole
+      cylinder(h: thickness, r: mounting_hole_radius, fn: 16);
+    end
   end
 
   class Case
@@ -264,17 +304,22 @@ class ParametricKeyboard
     def to_scad
       union do
         difference do
-          @keyboard.plate.bare_plate(thickness: case_height)
-          translate(
-            x: case_wall_thickness,
-            y: case_wall_thickness,
-            z: case_floor_thickness
-          ) do
-            @keyboard.plate.bare_plate(
-              width: width_in_mm-(case_wall_thickness*2),
-              height: height_in_mm-(case_wall_thickness*2),
-              thickness: case_height-case_floor_thickness
-            )
+          union do
+            difference do
+              @keyboard.plate.bare_plate(thickness: case_height)
+              translate(
+                x: case_wall_thickness,
+                y: case_wall_thickness,
+                z: case_floor_thickness
+              ) do
+                @keyboard.plate.bare_plate(
+                  width: width_in_mm-(case_wall_thickness*2),
+                  height: height_in_mm-(case_wall_thickness*2),
+                  thickness: case_height-case_floor_thickness
+                )
+              end
+            end
+            mounting_standoff_matrix(mounting_holes, 0, height_in_mm - key_unit_size)
           end
           @keyboard.plate.apply_truncations(thickness: case_height)
         end
@@ -371,6 +416,24 @@ class ParametricKeyboard
             end
           end
         end
+      end
+    end
+
+    def mounting_standoff_matrix(holes, startx, starty)
+      lkey = key_unit_size
+      holes.each do |key|
+        translate(v: [startx+lkey*key[0], (starty-lkey*key[1])+lkey, 0]) do
+          # translate(v: [(lkey*key[1]-key_hole_size)/2,(lkey - key_hole_size)/2, 0]) do
+            mounting_standoff
+          # end
+        end
+      end
+    end
+
+    def mounting_standoff
+      difference do
+        cylinder(h: case_height, r: mounting_hole_radius+1, fn: 16)
+        cylinder(h: case_height, r: mounting_hole_radius, fn: 16)
       end
     end
 
