@@ -257,6 +257,9 @@ class ParametricKeyboard
         translate(v: [startx+lkey*key[0][0], starty-lkey*key[0][1], 0]) do
           translate(v: [(lkey*key[1]-key_hole_size)/2,(lkey - key_hole_size)/2, 0]) do
             switchhole
+            if key[2..-1].include?(:stabilizers)
+              stabilizer_holes
+            end
           end
         end
       end
@@ -275,6 +278,25 @@ class ParametricKeyboard
           # Bottom clip cutout
           translate(v: [-cutout_width,key_hole_size-cutout_width-cutout_height,0]) do
             cube(size: [key_hole_size+2*cutout_width,cutout_height,thickness])
+          end
+        end
+      end
+    end
+
+    # Costar stabilizer
+    def stabilizer_holes
+      slot_spacing = 20.6
+      slot_width = 3.3
+      slot_height = 14
+      y_offset = 0.75
+      x_offset = 4
+      total_width = slot_spacing+(slot_width*2)
+
+      translate(v: [-(total_width/4),-y_offset,0]) do
+        difference do
+          cube(size: [total_width, slot_height, thickness])
+          translate(v: [slot_width, 0, 0]) do
+            cube(size: [slot_spacing, slot_height, thickness])
           end
         end
       end

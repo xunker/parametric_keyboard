@@ -67,8 +67,8 @@ keymap = [
   [[1,4],1], # `
   [[2,4],1], # lalt
   [[3,4],1.25], # lcmd
-  [[4.25,4],3], # space 1
-  [[7.25,4],3], # space 2
+  [[4.25,4],3, :stabilizers], # space 1
+  [[7.25,4],3, :stabilizers], # space 2
   [[10.25,4],1.25], # rcmd
   [[11.5,4],1], # left
   [[12.5,4],1], # down
@@ -116,14 +116,14 @@ new_stdout = StringIO.new
 $stdout = new_stdout
 
 # union do
-   kb = ParametricKeyboard.new(
-     width: 14.5,
-     height: 5,
-     keymap: keymap,
-     truncations: right_truncations,
-     include_cutouts: false
-   )
-   kb.case.to_scad
+   # kb = ParametricKeyboard.new(
+   #   width: 14.5,
+   #   height: 5,
+   #   keymap: keymap,
+   #   truncations: right_truncations,
+   #   include_cutouts: false
+   # )
+   # kb.case.to_scad
 
 #    translate(x: kb.case_wall_thickness) do
 #       kb = ParametricKeyboard.new(
@@ -150,14 +150,14 @@ $stdout = new_stdout
 #    kb.case.to_scad
 
 #    translate(z: kb.case_height) do
-#       kb = ParametricKeyboard.new(
-#         width: 14.5,
-#         height: 5,
-#         keymap: keymap,
-#         truncations: right_truncations,
-#         include_cutouts: false
-#       )
-#       kb.plate.to_scad
+      kb = ParametricKeyboard.new(
+        width: 14.5,
+        height: 5,
+        keymap: keymap,
+        # truncations: right_truncations,
+        include_cutouts: false
+      )
+      kb.plate.to_scad
 #    end
 
 #    kb = ParametricKeyboard.new(
