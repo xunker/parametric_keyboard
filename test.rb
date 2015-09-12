@@ -5,12 +5,12 @@ extend RubyScad
 
 keymap = [
   # start ROW 0
-  [[1,1],1, :stabilizers]
+  [[0.5,0.5],1, :stabilizers]
 ]
 
 kb = ParametricKeyboard.new(
-  width: 3,
-  height: 3,
+  width: 2,
+  height: 2,
   keymap: keymap,
   include_cutouts: false
 )

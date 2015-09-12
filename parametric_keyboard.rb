@@ -286,8 +286,8 @@ class ParametricKeyboard
     # Costar stabilizer
     def stabilizer_holes
       slot_spacing = 20.6
-      slot_width = 3.3
-      slot_height = 14
+      slot_width = 4 # 3.3
+      slot_height = 15 # 14
       y_offset = 0.75
       x_offset = 4
       total_width = slot_spacing+(slot_width*2)
