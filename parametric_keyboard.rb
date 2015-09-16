@@ -6,7 +6,7 @@ class ParametricKeyboard
     :cutout_width, :cutout_height, :include_cutouts,
     :truncations,
     :cavity_height, :case_floor_thickness, :case_wall_thickness, :case_height,
-    :mounting_hole_radius, :mounting_holes
+    :mounting_hole_diameter, :mounting_holes
 
   # `options` hash keys.
   #
@@ -22,7 +22,7 @@ class ParametricKeyboard
   # cutout_height   Height of switch clasp cutouts in mm. Default: 3
   # cutout_width    Width of switch clasp cutouts in mm. Default 1
   # include_cutouts Include the clasp cutouts? Default: true
-  # mounting_hole_radius  Radius in mm of mounting holes.  Default: 1.5
+  # mounting_hole_diameter  Diameter in mm of mounting holes.  Default: 2
   # truncations     Truncate rows to create partial, non-square plates. Can be set later.
   # cavity_height   Interior height of empty space in lower case. Default 8
   # case_floor_thickness  Thickness of lower case floor. Default: 1
@@ -38,7 +38,7 @@ class ParametricKeyboard
     @cutout_height = (options.delete(:cutout_height) || 4).to_f
     @cutout_width = (options.delete(:cutout_width) || 1).to_f
     @include_cutouts = !!options.delete(:include_cutouts)
-    @mounting_hole_radius = (options.delete(:mounting_hole_radius) || 1.5).to_f
+    @mounting_hole_diameter = (options.delete(:mounting_hole_diameter) || 2).to_f
     @case_floor_thickness = (options.delete(:case_floor_thickness) || 1).to_f
     @case_wall_thickness = (options.delete(:case_wall_thickness) || 1.2).to_f
 
@@ -191,8 +191,8 @@ class ParametricKeyboard
       @keyboard.mounting_holes || []
     end
 
-    def mounting_hole_radius
-      @keyboard.mounting_hole_radius
+    def mounting_hole_diameter
+      @keyboard.mounting_hole_diameter
     end
   end
 
@@ -285,11 +285,10 @@ class ParametricKeyboard
 
     # Costar stabilizer
     def stabilizer_holes
-      slot_spacing = 20.6
-      slot_width = 4 # 3.3
-      slot_height = 15 # 14
-      y_offset = 0.75
-      x_offset = 4
+      slot_spacing = 20.5 # 20.6 (20.5 measured)
+      slot_width = 3.7 # 3.3 (3.5 measured)
+      slot_height = 14 # 14 (14 measured)
+      y_offset = 0.25 # 0.75 is too far down, rubs
       total_width = slot_spacing+(slot_width*2)
 
       translate(v: [-(total_width/4),-y_offset,0]) do
@@ -314,7 +313,7 @@ class ParametricKeyboard
     end
 
     def mounting_hole
-      cylinder(h: thickness, r: mounting_hole_radius, fn: 16);
+      cylinder(h: thickness, d: mounting_hole_diameter, fn: 8);
     end
   end
 
@@ -454,8 +453,8 @@ class ParametricKeyboard
 
     def mounting_standoff
       difference do
-        cylinder(h: case_height, r: mounting_hole_radius+1, fn: 16)
-        cylinder(h: case_height, r: mounting_hole_radius, fn: 16)
+        cylinder(h: case_height, d: mounting_hole_diameter+2, fn: 8)
+        cylinder(h: case_height, d: mounting_hole_diameter, fn: 8)
       end
     end
 
