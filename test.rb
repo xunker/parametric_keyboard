@@ -5,7 +5,8 @@ extend RubyScad
 
 keymap = [
   # start ROW 0
-  [[0.5,0.5],1, :stabilizers]
+  [[0.5,0.5],1, :stabilizers],
+  [[0.5,1.5],1]
 ]
 
 kb = ParametricKeyboard.new(

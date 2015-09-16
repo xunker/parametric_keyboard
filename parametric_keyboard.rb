@@ -288,7 +288,7 @@ class ParametricKeyboard
       slot_spacing = 20.5 # 20.6 (20.5 measured)
       slot_width = 3.7 # 3.3 (3.5 measured)
       slot_height = 14 # 14 (14 measured)
-      y_offset = 0.25 # 0.75 is too far down, rubs
+      y_offset = 0.15 # 0.75 is too far down, rubs
       total_width = slot_spacing+(slot_width*2)
 
       translate(v: [-(total_width/4),-y_offset,0]) do
