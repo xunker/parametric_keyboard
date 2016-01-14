@@ -154,7 +154,7 @@ $stdout = new_stdout
         width: 14.5,
         height: 5,
         keymap: keymap,
-        # truncations: right_truncations,
+        truncations: right_truncations,
         include_cutouts: false
       )
       kb.plate.to_scad

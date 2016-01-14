@@ -20,13 +20,13 @@ class ParametricKeyboard
   # key_unit_size   Square length of space for a single key unit in mm. Default: 19.05
   # key_hole_size   Square length of cutout for switch in mm. Default: 14
   # cutout_height   Height of switch clasp cutouts in mm. Default: 3
-  # cutout_width    Width of switch clasp cutouts in mm. Default 1
+  # cutout_width    Width of switch clasp cutouts in mm. Default: 1
   # include_cutouts Include the clasp cutouts? Default: true
-  # mounting_hole_diameter  Diameter in mm of mounting holes.  Default: 2
+  # mounting_hole_diameter  Diameter in mm of mounting holes.  Default: 1.5
   # truncations     Truncate rows to create partial, non-square plates. Can be set later.
-  # cavity_height   Interior height of empty space in lower case. Default 8
+  # cavity_height   Interior height of empty space in lower case. Default: 8
   # case_floor_thickness  Thickness of lower case floor. Default: 1
-  # case_wall_thickness   Thickness of lower case walls. Default 1.2
+  # case_wall_thickness   Thickness of lower case walls. Default: 1.2
 
   def initialize(options={})
     @width = options.delete(:width) or raise ArgumentError, 'must provide :width'
@@ -38,7 +38,7 @@ class ParametricKeyboard
     @cutout_height = (options.delete(:cutout_height) || 4).to_f
     @cutout_width = (options.delete(:cutout_width) || 1).to_f
     @include_cutouts = !!options.delete(:include_cutouts)
-    @mounting_hole_diameter = (options.delete(:mounting_hole_diameter) || 2).to_f
+    @mounting_hole_diameter = (options.delete(:mounting_hole_diameter) || 1.5).to_f
     @case_floor_thickness = (options.delete(:case_floor_thickness) || 1).to_f
     @case_wall_thickness = (options.delete(:case_wall_thickness) || 1.2).to_f
 
@@ -453,7 +453,7 @@ class ParametricKeyboard
 
     def mounting_standoff
       difference do
-        cylinder(h: case_height, d: mounting_hole_diameter+2, fn: 8)
+        cylinder(h: case_height, d: mounting_hole_diameter+2.3, fn: 8)
         cylinder(h: case_height, d: mounting_hole_diameter, fn: 8)
       end
     end
