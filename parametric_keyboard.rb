@@ -200,6 +200,8 @@ class ParametricKeyboard
     include RubyScad
     include Common
 
+    FF = 0.1 # for better quick-rendering
+
     # output plate in openscad format
     def to_scad
       union do
@@ -225,12 +227,12 @@ class ParametricKeyboard
 
           case tdirection
           when :right
-            translate(v: [(startx+lkey*toffset), starty-lkey*trow, 0]) do
-              cube(size: [width_in_mm-(startx*toffset),lkey,options[:thickness]])
+            translate(v: [(startx+lkey*toffset), starty-lkey*trow, -FF]) do
+              cube(size: [width_in_mm-(startx*toffset),lkey,options[:thickness]+(FF*2)])
             end
           when :left
-            translate(v: [0, starty-lkey*trow, 0]) do
-              cube(size: [(startx+lkey*toffset),lkey,options[:thickness]])
+            translate(v: [0, starty-lkey*trow, -FF]) do
+              cube(size: [(startx+lkey*toffset),lkey,options[:thickness]+(FF*2)])
             end
           else
             warn "Unknown truncate direction: #{tdirection}"
@@ -267,7 +269,9 @@ class ParametricKeyboard
 
     def switchhole
       union do
-        cube(size: [key_hole_size,key_hole_size,thickness])
+        translate(v: [0,0,-FF]) do
+          cube(size: [key_hole_size,key_hole_size,thickness+(FF*2)])
+        end
 
         if include_cutouts?
           # Top clip cutout
@@ -276,8 +280,8 @@ class ParametricKeyboard
           end
 
           # Bottom clip cutout
-          translate(v: [-cutout_width,key_hole_size-cutout_width-cutout_height,0]) do
-            cube(size: [key_hole_size+2*cutout_width,cutout_height,thickness])
+          translate(v: [-cutout_width,key_hole_size-cutout_width-cutout_height,-FF]) do
+            cube(size: [key_hole_size+2*cutout_width,cutout_height,thickness+(FF*2)])
           end
         end
       end
@@ -291,11 +295,11 @@ class ParametricKeyboard
       y_offset = 0.15 # 0.75 is too far down, rubs
       total_width = slot_spacing+(slot_width*2)
 
-      translate(v: [-(total_width/4),-y_offset,0]) do
+      translate(v: [-(total_width/4),-y_offset,-FF]) do
         difference do
-          cube(size: [total_width, slot_height, thickness])
+          cube(size: [total_width, slot_height, thickness+(FF*2)])
           translate(v: [slot_width, 0, 0]) do
-            cube(size: [slot_spacing, slot_height, thickness])
+            cube(size: [slot_spacing, slot_height, thickness+(FF*2)])
           end
         end
       end
@@ -304,7 +308,7 @@ class ParametricKeyboard
     def mounting_hole_matrix(holes, startx, starty)
       lkey = key_unit_size
       holes.each do |key|
-        translate(v: [startx+lkey*key[0], (starty-lkey*key[1])+lkey, 0]) do
+        translate(v: [startx+lkey*key[0], (starty-lkey*key[1])+lkey, -FF]) do
           # translate(v: [(lkey*key[1]-key_hole_size)/2,(lkey - key_hole_size)/2, 0]) do
             mounting_hole
           # end
@@ -313,13 +317,15 @@ class ParametricKeyboard
     end
 
     def mounting_hole
-      cylinder(h: thickness, d: mounting_hole_diameter, fn: 8);
+      cylinder(h: thickness+(FF*2), d: mounting_hole_diameter, fn: 8);
     end
   end
 
   class Case
     include RubyScad
     include Common
+
+    FF = 0.1 # for better quick-rendering
 
     # output case in openscad format
     def to_scad
@@ -365,15 +371,15 @@ class ParametricKeyboard
 
             if !first && previous_end_offset > current_end_offset
               wall_length = previous_end_offset - current_end_offset
-              translate(v: [current_end_offset*lkey-case_wall_thickness,starty-(lkey*(trow-1)), 0]) do
-                cube(size: [(wall_length*lkey)+case_wall_thickness, case_wall_thickness, case_height])
+              translate(v: [current_end_offset*lkey-case_wall_thickness,starty-(lkey*(trow-1)), -FF]) do
+                cube(size: [(wall_length*lkey)+case_wall_thickness, case_wall_thickness, case_height+(FF*2)])
               end
             end
 
             if !last && next_end_offset > current_end_offset
               wall_length = next_end_offset - current_end_offset
-              translate(v: [current_end_offset*lkey-case_wall_thickness,(starty-(lkey*(trow)))-case_wall_thickness, 0]) do
-                cube(size: [(wall_length*lkey)+case_wall_thickness, case_wall_thickness, case_height])
+              translate(v: [current_end_offset*lkey-case_wall_thickness,(starty-(lkey*(trow)))-case_wall_thickness, -FF]) do
+                cube(size: [(wall_length*lkey)+case_wall_thickness, case_wall_thickness, case_height+(FF*2)])
               end
             end
           end
@@ -398,8 +404,8 @@ class ParametricKeyboard
               # puts "next_truncation: #{next_truncation.inspect}"
               # puts "trow: #{trow}, current_end_offset: #{current_end_offset}, previous_end_offset: #{previous_end_offset}, wall_length: #{wall_length}"
               # puts({ v: [current_end_offset*lkey,starty-lkey*trow, 0] }).inspect
-              translate(v: [current_end_offset*lkey,(starty-(lkey*(trow-1)))-case_wall_thickness, 0]) do
-                cube(size: [(wall_length*lkey)+case_wall_thickness, case_wall_thickness, case_height])
+              translate(v: [current_end_offset*lkey,(starty-(lkey*(trow-1)))-case_wall_thickness, -FF]) do
+                cube(size: [(wall_length*lkey)+case_wall_thickness, case_wall_thickness, case_height+(FF*2)])
               end
             end
 
@@ -409,8 +415,8 @@ class ParametricKeyboard
               # puts "next_truncation: #{next_truncation.inspect}"
               # puts "trow: #{trow}, current_end_offset: #{current_end_offset}, next_end_offset: #{next_end_offset}, wall_length: #{wall_length}"
               # puts({ v: [current_end_offset*lkey,starty-lkey*trow, 0] }).inspect
-              translate(v: [current_end_offset*lkey,starty-(lkey*(trow)), 0]) do
-                cube(size: [(wall_length*lkey)+case_wall_thickness, case_wall_thickness, case_height])
+              translate(v: [current_end_offset*lkey,starty-(lkey*(trow)), -FF]) do
+                cube(size: [(wall_length*lkey)+case_wall_thickness, case_wall_thickness, case_height+(FF*2)])
               end
             end
           end
@@ -425,12 +431,12 @@ class ParametricKeyboard
             # left truncations should put the wall on the right
             case tdirection
             when :right
-              translate(v: [(startx+lkey*toffset)-case_wall_thickness, starty-lkey*trow, 0]) do
-                cube(size: [case_wall_thickness,lkey,case_height])
+              translate(v: [(startx+lkey*toffset)-case_wall_thickness, starty-lkey*trow, -FF]) do
+                cube(size: [case_wall_thickness,lkey,case_height+(FF*2)])
               end
             when :left
-              translate(v: [(startx+lkey*toffset), starty-lkey*trow, 0]) do
-                cube(size: [case_wall_thickness,lkey,case_height])
+              translate(v: [(startx+lkey*toffset), starty-lkey*trow, -FF]) do
+                cube(size: [case_wall_thickness,lkey,case_height+(FF*2)])
               end
             else
               warn "Unknown truncate direction: #{tdirection}"
