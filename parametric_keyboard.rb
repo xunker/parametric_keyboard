@@ -11,11 +11,11 @@ class ParametricKeyboard
   # `options` hash keys.
   #
   # Required:
-  # width   Width of board in units of `key_unit_size`. Can be float.
-  # height  Height of the board in units of `key_unit_size`. Can be float.
   # keymap  Map of the keys. Can be set later with `#keymap=`
   #
   # Optional:
+  # width   Width of board in units of `key_unit_size`. Can be float. Default is automatically calculated from map.
+  # height  Height of the board in units of `key_unit_size`. Can be float. Default is automatically calculated from map.
   # plate_thickness Thickness of plate in mm. Default: 1.4
   # key_unit_size   Square length of space for a single key unit in mm. Default: 19.05
   # key_hole_size   Square length of cutout for switch in mm. Default: 14
@@ -29,8 +29,14 @@ class ParametricKeyboard
   # case_wall_thickness   Thickness of lower case walls. Default: 1.2
 
   def initialize(options={})
-    @width = options.delete(:width) or raise ArgumentError, 'must provide :width'
-    @height = options.delete(:height) or raise ArgumentError, 'must provide :height'
+
+    if options[:keymap]
+      @width = options.delete(:width) || calculate_width(options[:keymap])
+      @height = options.delete(:height) || calculate_height(options[:keymap])
+    else
+      @width = options.delete(:width) or raise ArgumentError, 'must provide :width or :keymap'
+      @height = options.delete(:height) or raise ArgumentError, 'must provide :height or :keymap'
+    end
 
     @plate_thickness = (options.delete(:plate_thickness) || 1.4).to_f
     @key_unit_size = (options.delete(:key_unit_size) || 19.05).to_f
@@ -109,6 +115,24 @@ class ParametricKeyboard
   # [ <offset in key_units>, <row in key_units> ]
   def mounting_holes=(mounting_holes_map)
     @mounting_holes = mounting_holes_map
+  end
+
+  # Calculate the plate/case width in units, based on keymap
+  def calculate_width(keymap)
+    row_widths=[]
+    keymap.each do |coords, size|
+      row = coords.last
+      row_widths[row] ||= 0
+      row_widths[row] += size
+    end
+    puts "// width: #{row_widths.max}"
+    row_widths.max
+  end
+
+  # Calculate the plate/case height in units, based on keymap
+  def calculate_height(keymap)
+    puts "// height: #{keymap.map{|coords, _size|coords.last}.max+1}"
+    keymap.map{|coords, _size|coords.last}.max+1
   end
 
   # common methods for classes descended from ParametricKeyboard
