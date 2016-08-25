@@ -471,4 +471,52 @@ class ParametricKeyboard
       @@output_file = nil
     end
   end
+
+
+  # accept json string as from keyboard-layout-editor.com, returns nested-array
+  # keymap:
+  # [
+  #   [[0,0],1], # [[column/x, row/y], size]
+  #   ...
+  # ]
+  #
+  # options can be:
+  #  :stabilize_at - automatically add stabilizer cutouts to keys this thise or larger.  Default is 2, set to nil to disable.
+  def self.keymap_from_json(json, options = {})
+    require 'json'
+    options = {stabilize_at: 2}.merge(options)
+
+
+    keymap = [] # output in format above
+
+    current_y = 0 # key units
+    JSON.parse(json).select{|e| e.is_a?(Array)}.each do |row|
+
+      next_values = {} # store "next key" attributes
+      current_x = 0 # key units
+      row.each do |key|
+
+        if key.is_a?(Hash)
+          # not a key, but changes in size, x, y, etc.
+          current_x = current_x += key['x'] if key['x']
+          current_y = current_y += key['y'] if key['y']
+
+          if key['w']
+            next_values['w'] = key['w']
+          end
+        else
+          current_key_size = next_values.delete('w') || 1
+          keymap << [[current_x, current_y], current_key_size]
+
+          if options[:stabilize_at] && current_key_size >= options[:stabilize_at]
+            keymap.last << :stabilizers
+          end
+
+          current_x += current_key_size
+        end
+      end
+      current_y += 1
+    end
+    keymap
+  end
 end
