@@ -497,8 +497,8 @@ class ParametricKeyboard
   end
 
 
-  # accept json string as from keyboard-layout-editor.com, returns nested-array
-  # keymap:
+  # accept json string as from a gist saved from keyboard-layout-editor.com.
+  # Returns nested-array keymap:
   # [
   #   [[0,0],1], # [[column/x, row/y], size]
   #   ...
@@ -506,6 +506,9 @@ class ParametricKeyboard
   #
   # options can be:
   #  :stabilize_at - automatically add stabilizer cutouts to keys this thise or larger.  Default is 2, set to nil to disable.
+  #
+  # NOTE: Only supports key width and x/y coordinates. Does not support rotation,
+  # keys taller that 1x, or anything else.
   def self.keymap_from_json(json, options = {})
     require 'json'
     options = {stabilize_at: 2}.merge(options)
