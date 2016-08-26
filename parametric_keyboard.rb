@@ -383,7 +383,7 @@ class ParametricKeyboard
                 @keyboard.plate.bare_plate(
                   width: width_in_mm-(case_wall_thickness*2),
                   height: height_in_mm-(case_wall_thickness*2),
-                  thickness: case_height-case_floor_thickness
+                  thickness: case_height-case_floor_thickness+FF
                 )
               end
             end
@@ -492,16 +492,25 @@ class ParametricKeyboard
       holes.each do |key|
         translate(v: [startx+lkey*key[0], (starty-lkey*key[1])+lkey, 0]) do
           # translate(v: [(lkey*key[1]-key_hole_size)/2,(lkey - key_hole_size)/2, 0]) do
-            mounting_standoff
+            mounting_standoff(key[2..-1])
           # end
         end
       end
     end
 
-    def mounting_standoff
-      difference do
-        cylinder(h: case_height, d: mounting_hole_diameter+2.3, fn: 8)
-        cylinder(h: case_height, d: mounting_hole_diameter, fn: 8)
+    def mounting_standoff(options=[])
+      if options.include?(:beefy)
+        # Beefy supports, flared at the bottom.
+        difference do
+          cylinder(h: case_height, d1: mounting_hole_diameter+5.5, d2: mounting_hole_diameter+2.3, fn: 8)
+          cylinder(h: case_height, d: mounting_hole_diameter, fn: 8)
+        end
+      else
+        # "Normal" supports
+        difference do
+          cylinder(h: case_height, d: mounting_hole_diameter+2.3, fn: 8)
+          cylinder(h: case_height, d: mounting_hole_diameter, fn: 8)
+        end
       end
     end
 
