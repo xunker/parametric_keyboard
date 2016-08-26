@@ -295,6 +295,12 @@ class ParametricKeyboard
       union do
         translate(v: [0,0,-FF]) do
           cube(size: [key_hole_size,key_hole_size,thickness+(FF*2)])
+          if thickness > 1.4
+            translate(v: [-1,-1,1.4]) do # 1.4 is clip thickness for Cherry MX
+              # Larger cutout for parts above clip
+              cube(size: [key_hole_size+2,key_hole_size+2,thickness+(FF*2)])
+            end
+          end
         end
 
         if include_cutouts?
@@ -324,6 +330,17 @@ class ParametricKeyboard
           cube(size: [total_width, slot_height, thickness+(FF*2)])
           translate(v: [slot_width, 0, 0]) do
             cube(size: [slot_spacing, slot_height, thickness+(FF*2)])
+          end
+        end
+      end
+
+      if thickness > 1.4
+        translate(v: [-(total_width/4)-1,-y_offset-1,1.4]) do
+          difference do
+            cube(size: [total_width+2, slot_height+2, thickness+(FF*2)])
+            translate(v: [slot_width+2, 0, 0]) do
+              cube(size: [slot_spacing-2, slot_height+2, thickness+(FF*2)])
+            end
           end
         end
       end
