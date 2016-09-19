@@ -6,7 +6,7 @@ class ParametricKeyboard
     :cutout_width, :cutout_height, :include_cutouts,
     :truncations,
     :cavity_height, :case_floor_thickness, :case_wall_thickness, :case_height,
-    :mounting_hole_diameter, :mounting_holes, :support_holes
+    :mounting_hole_diameter, :mounting_holes, :support_holes, :underside_openings
 
   # `options` hash keys.
   #
@@ -28,6 +28,7 @@ class ParametricKeyboard
   # case_floor_thickness  Thickness of lower case floor. Default: 1
   # case_wall_thickness   Thickness of lower case walls. Default: 1.2
   # support_holes   Support hole locations on underside of case. Optional.
+  # underside_openings  Wire access opening, underside of case, size and location. Optional
 
   def initialize(options={})
 
@@ -49,6 +50,7 @@ class ParametricKeyboard
     @case_floor_thickness = (options.delete(:case_floor_thickness) || 1).to_f
     @case_wall_thickness = (options.delete(:case_wall_thickness) || 1.2).to_f
     @support_holes = options.delete(:support_holes)
+    @underside_openings = options.delete(:underside_openings)
 
     # total case height: cavity_height + case_floor_thickness
     cavity_height = (options.delete(:cavity_height) || 8).to_f
@@ -221,6 +223,10 @@ class ParametricKeyboard
 
     def support_holes
       @keyboard.support_holes || []
+    end
+
+    def underside_openings
+      @keyboard.underside_openings || []
     end
   end
 
@@ -397,6 +403,7 @@ class ParametricKeyboard
                   thickness: case_height-case_floor_thickness+FF
                 )
               end
+              underside_opening_matrix(underside_openings)
             end
             mounting_standoff_matrix(mounting_holes, 0, height_in_mm - key_unit_size)
             support_stem_matrix(support_holes)
@@ -534,7 +541,7 @@ class ParametricKeyboard
     end
 
     def support_hole(hole)
-      translate(v: [key_hole_size*hole.first,key_hole_size*hole.last,-FF]) do
+      translate(v: [key_unit_size*hole.first,key_unit_size*hole.last,-FF]) do
         cylinder(h: (case_floor_thickness*2)+(FF*2), d: 3, fn: 4)
       end
     end
@@ -546,8 +553,41 @@ class ParametricKeyboard
     end
 
     def support_stem(stem)
-      translate(v: [key_hole_size*stem.first,key_hole_size*stem.last,0]) do
+      translate(v: [key_unit_size*stem.first,key_unit_size*stem.last,0]) do
         cylinder(h: case_floor_thickness*2, d: 6, fn: 6)
+      end
+    end
+
+    # openings expected to be array of hashes:
+    # [{
+    #    x: <x offset in units>,
+    #    y: <y offset in units>,
+    #    width: <x size in units>,
+    #    length: <y size in units>,
+    #    cover_screw_holes: <true/false, add cover screw holes around opening>
+    # }]
+    def underside_opening_matrix(openings)
+      openings.each do |opening|
+        x = key_unit_size*opening[:x] || 1
+        y = key_unit_size*opening[:y] || 1
+        width = key_unit_size*opening[:width] || 1
+        length = key_unit_size*opening[:length] || 1
+
+        translate(v: [x,y,-FF]) do
+          cube(size: [width, length, case_floor_thickness+(FF*2)])
+          if opening[:screw_holes]
+            [
+              [-3, 2],
+              [width+3, 2],
+              [-3, length-2],
+              [width+3, length-2],
+            ].each do |hole_x, hole_y|
+              translate(v: [hole_x,hole_y,0]) do
+                cylinder(d:3, h: case_floor_thickness+(FF*2),fn: 6)
+              end
+            end
+          end
+        end
       end
     end
 

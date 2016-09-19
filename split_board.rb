@@ -236,16 +236,33 @@ $stdout = new_stdout
         keymap: keymap,
         cavity_height: 7,
         # truncations: right_truncations,
-        truncations: left_truncations,
+        # truncations: left_truncations,
         include_cutouts: false,
         mounting_holes: mounting_holes,
         support_holes: [
-          [1.25,5.8], [1.25,6.1], [1.25,6.4],
-          [8.25,5.8], [8.25,6.1], [8.25,6.4],
-          [10.9,5.8], [10.9,6.1], [10.9,6.4],
-          [18.0,5.8], [18.0,6.1], [18.0,6.4]
+          [1.25,3.8], [1.25,4.1], [1.25,4.4],
+          [5.25,3.8], [5.25,4.1], [5.25,4.4],
+          [7.9,3.8], [7.9,4.1], [7.9,4.4],
+          [13.0,3.8], [13.0,4.1], [13.0,4.4]
         ],
-        plate_thickness: 3
+        underside_openings: [
+          {
+            x: 3,
+            y: 3.5,
+            width: 1,
+            length: 1.25,
+            screw_holes: true
+          },
+          {
+            x: 10,
+            y: 3.5,
+            width: 1,
+            length: 1.25,
+            screw_holes: true
+          }
+
+        ],
+        plate_thickness: 2.8
       )
       # kb.plate.to_scad
       kb.case.to_scad
