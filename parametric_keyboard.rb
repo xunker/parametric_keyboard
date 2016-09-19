@@ -6,7 +6,7 @@ class ParametricKeyboard
     :cutout_width, :cutout_height, :include_cutouts,
     :truncations,
     :cavity_height, :case_floor_thickness, :case_wall_thickness, :case_height,
-    :mounting_hole_diameter, :mounting_holes
+    :mounting_hole_diameter, :mounting_holes, :support_holes
 
   # `options` hash keys.
   #
@@ -27,6 +27,7 @@ class ParametricKeyboard
   # cavity_height   Interior height of empty space in lower case. Default: 8
   # case_floor_thickness  Thickness of lower case floor. Default: 1
   # case_wall_thickness   Thickness of lower case walls. Default: 1.2
+  # support_holes   Support hole locations on underside of case. Optional.
 
   def initialize(options={})
 
@@ -47,6 +48,7 @@ class ParametricKeyboard
     @mounting_hole_diameter = (options.delete(:mounting_hole_diameter) || 1.5).to_f
     @case_floor_thickness = (options.delete(:case_floor_thickness) || 1).to_f
     @case_wall_thickness = (options.delete(:case_wall_thickness) || 1.2).to_f
+    @support_holes = options.delete(:support_holes)
 
     # total case height: cavity_height + case_floor_thickness
     cavity_height = (options.delete(:cavity_height) || 8).to_f
@@ -125,13 +127,11 @@ class ParametricKeyboard
       row_widths[row] ||= 0
       row_widths[row] += size
     end
-    puts "// width: #{row_widths.max}"
     row_widths.max
   end
 
   # Calculate the plate/case height in units, based on keymap
   def calculate_height(keymap)
-    puts "// height: #{keymap.map{|coords, _size|coords.last}.max+1}"
     keymap.map{|coords, _size|coords.last}.max+1
   end
 
@@ -217,6 +217,10 @@ class ParametricKeyboard
 
     def mounting_hole_diameter
       @keyboard.mounting_hole_diameter
+    end
+
+    def support_holes
+      @keyboard.support_holes || []
     end
   end
 
@@ -360,6 +364,12 @@ class ParametricKeyboard
 
     def mounting_hole
       cylinder(h: thickness+(FF*2), d: mounting_hole_diameter, fn: 8);
+      if thickness > 1.4
+        # make larger opening up top so you can use shorter screws
+        translate(v: [0,0,1.4]) do
+          cylinder(h: (thickness-1.4)+(FF*2), d: mounting_hole_diameter*2, fn: 8);
+        end
+      end
     end
   end
 
@@ -389,7 +399,9 @@ class ParametricKeyboard
               end
             end
             mounting_standoff_matrix(mounting_holes, 0, height_in_mm - key_unit_size)
+            support_stem_matrix(support_holes)
           end
+          support_hole_matrix(support_holes)
           @keyboard.plate.apply_truncations(thickness: case_height)
         end
 
@@ -504,14 +516,38 @@ class ParametricKeyboard
         # Beefy supports, flared at the bottom.
         difference do
           cylinder(h: case_height, d1: mounting_hole_diameter+5.5, d2: mounting_hole_diameter+2.3, fn: 8)
-          cylinder(h: case_height, d: mounting_hole_diameter, fn: 8)
+          cylinder(h: case_height+FF, d: mounting_hole_diameter, fn: 8)
         end
       else
         # "Normal" supports
         difference do
           cylinder(h: case_height, d: mounting_hole_diameter+2.3, fn: 8)
-          cylinder(h: case_height, d: mounting_hole_diameter, fn: 8)
+          cylinder(h: case_height+FF, d: mounting_hole_diameter, fn: 8)
         end
+      end
+    end
+
+    def support_hole_matrix(holes)
+      holes.each do |hole|
+        support_hole(hole)
+      end
+    end
+
+    def support_hole(hole)
+      translate(v: [key_hole_size*hole.first,key_hole_size*hole.last,-FF]) do
+        cylinder(h: (case_floor_thickness*2)+(FF*2), d: 3, fn: 4)
+      end
+    end
+
+    def support_stem_matrix(stems)
+      stems.each do |stem|
+        support_stem(stem)
+      end
+    end
+
+    def support_stem(stem)
+      translate(v: [key_hole_size*stem.first,key_hole_size*stem.last,0]) do
+        cylinder(h: case_floor_thickness*2, d: 6, fn: 6)
       end
     end
 
