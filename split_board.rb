@@ -229,71 +229,83 @@ $stdout = new_stdout
 #    )
 #    kb.case.to_scad
 
-#    translate(z: kb.case_height) do
-      kb = ParametricKeyboard.new(
-        # width: 14.5,
-        # height: 5,
-        keymap: keymap,
-        cavity_height: 7,
-        # truncations: right_truncations,
-        # truncations: left_truncations,
-        include_cutouts: false,
-        mounting_holes: mounting_holes,
-        support_holes: [
-          [1.25,3.8], [1.25,4.05], [1.25,4.3],
-          [5.25,3.8], [5.25,4.05], [5.25,4.3],
-          [7.9,3.8], [7.9,4.05], [7.9,4.3],
-          [13.0,3.8], [13.0,4.05], [13.0,4.3]
-        ],
-        underside_openings: [
-          {
-            x: 3,
-            y: 3.5,
-            width: 1,
-            length: 1.25,
-            screw_holes: true
-          },
-          {
-            x: 10,
-            y: 3.5,
-            width: 1,
-            length: 1.25,
-            screw_holes: true
-          }
-
-        ],
-        plate_thickness: 2.8
-      )
-      # kb.plate.to_scad
-      kb.case.to_scad
-#    end
-
-#    kb = ParametricKeyboard.new(
-#      width: 14.5,
-#      height: 5,
-#      keymap: keymap,
-#      truncations: left_truncations,
-#      include_cutouts: false
-#    )
-
-#    translate(x: 12) do
-#       kb.case.to_scad
-#       translate(z: kb.case_height) do
-#          kb = ParametricKeyboard.new(
-#            width: 14.5,
-#            height: 5,
-#            keymap: keymap,
-#            truncations: left_truncations,
-#            include_cutouts: false
-#          )
-#          kb.plate.to_scad
-#       end
-#    end
-
-# end
-
 File.open('split_board.scad', 'w') do |f|
-   f.puts new_stdout.string
+  [
+    [-20, right_truncations],
+    [+20, left_truncations]
+  ].each do |x_offset, truncations|
+
+  #    translate(z: kb.case_height) do
+    translate(x: x_offset) do
+        kb = ParametricKeyboard.new(
+          # width: 14.5,
+          # height: 5,
+          keymap: keymap,
+          cavity_height: 7,
+          # truncations: right_truncations,
+          # truncations: left_truncations,
+          truncations: truncations,
+          include_cutouts: false,
+          mounting_holes: mounting_holes,
+          support_holes: [
+            [1.25,3.8], [1.25,4.05], [1.25,4.3],
+            [5.25,3.8], [5.25,4.05], [5.25,4.3],
+            [7.9,3.8], [7.9,4.05], [7.9,4.3],
+            [13.0,3.8], [13.0,4.05], [13.0,4.3]
+          ],
+          underside_openings: [
+            {
+              x: 3,
+              y: 3.5,
+              width: 1,
+              length: 1.25,
+              screw_holes: true
+            },
+            {
+              x: 10,
+              y: 3.5,
+              width: 1,
+              length: 1.25,
+              screw_holes: true
+            }
+
+          ],
+          plate_thickness: 2.8
+        )
+
+        translate(z: kb.case_height + 10) do
+          kb.plate.to_scad
+        end
+
+        kb.case.to_scad
+  #    end
+
+  #    kb = ParametricKeyboard.new(
+  #      width: 14.5,
+  #      height: 5,
+  #      keymap: keymap,
+  #      truncations: left_truncations,
+  #      include_cutouts: false
+  #    )
+
+  #    translate(x: 12) do
+  #       kb.case.to_scad
+  #       translate(z: kb.case_height) do
+  #          kb = ParametricKeyboard.new(
+  #            width: 14.5,
+  #            height: 5,
+  #            keymap: keymap,
+  #            truncations: left_truncations,
+  #            include_cutouts: false
+  #          )
+  #          kb.plate.to_scad
+  #       end
+  #    end
+
+  end
+  end
+
+  f.puts new_stdout.string
 end
 
 $stdout = original_stdout
